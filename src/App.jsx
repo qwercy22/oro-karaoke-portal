@@ -6,7 +6,7 @@ const SONG_SUGGESTIONS = [
   "Africa", "Mr. Brightside", "Wonderwall", "Dancing Queen"
 ];
 
-const ADMIN_PASSWORD = "dj1234";
+const ADMIN_PASSWORD = "oro1234";
 
 export default function KaraokePortal() {
   const [view, setView] = useState("portal");
@@ -293,7 +293,7 @@ export default function KaraokePortal() {
           </div>
         </div>
       )}
-
+it 
       {removeConfirm && (
         <div style={{
           position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)",
