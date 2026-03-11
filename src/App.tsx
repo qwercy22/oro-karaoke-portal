@@ -124,7 +124,7 @@ export default function KaraokePortal() {
       background: "url('/background.avif') center/cover no-repeat",
       fontFamily: "'Georgia', serif",
       display: "flex",
-      flexDirection: "column",
+      flexDirection: "column" as const ,
       alignItems: "center",
       justifyContent: "center",
       padding: "20px",
@@ -402,7 +402,7 @@ export default function KaraokePortal() {
                 </p>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column" as const ,, gap: 20 }}>
                 {[
                   { label: "Your Name", val: name, set: setName, ph: "Stage name or real name..." },
                   { label: "Song Choice", val: song, set: setSong, ph: `e.g. ${SONG_SUGGESTIONS[currentSuggestion]}` },
@@ -431,7 +431,7 @@ export default function KaraokePortal() {
 
         {/* ADMIN VIEW */}
         {view === "admin" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column" as const ,, gap: 16 }}>
 
             {/* Stats bar */}
             <div style={{
