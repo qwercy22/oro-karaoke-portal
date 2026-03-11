@@ -6,7 +6,7 @@ const SONG_SUGGESTIONS = [
   "Africa", "Mr. Brightside", "Wonderwall", "Dancing Queen"
 ];
 
-const ADMIN_PASSWORD = "dj1234";
+const ADMIN_PASSWORD = "oro1234";
 const MAX_QUEUE = 10;
 
 export default function KaraokePortal() {
