@@ -379,7 +379,7 @@ export default function KaraokePortal() {
                 background: view === v ? "rgba(255,0,255,0.2)" : "none",
                 border: view === v ? "1px solid rgba(255,0,255,0.3)" : "1px solid transparent",
               }}>
-              {v === "portal" ? "🎙 Sign Up" : "🎛 DJ Console"}
+              {v === "portal" ? "🎙 Sign Up" : "🎛 Host"}
             </button>
           ))}
         </div>
