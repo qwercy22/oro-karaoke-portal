@@ -6,17 +6,23 @@ const SONG_SUGGESTIONS = [
   "Africa", "Mr. Brightside", "Wonderwall", "Dancing Queen"
 ];
 
-const ADMIN_PASSWORD = "oro1234";
+const ADMIN_PASSWORD = "dj1234";
+const MAX_QUEUE = 10;
 
 export default function KaraokePortal() {
   const [view, setView] = useState("portal");
   const [name, setName] = useState("");
   const [song, setSong] = useState("");
-  const [queue, setQueue] = useState([
-    { name: "Jamie Lee", song: "Bohemian Rhapsody", id: 1, status: "waiting" },
-    { name: "Marcus T.", song: "Don't Stop Believin'", id: 2, status: "waiting" },
-    { name: "Priya K.", song: "Dancing Queen", id: 3, status: "waiting" },
-  ]);
+  const [queue, setQueue] = useState(() => {
+    try {
+      const saved = localStorage.getItem("karaokeQueue");
+      return saved ? JSON.parse(saved) : [
+        { name: "Jamie Lee", song: "Bohemian Rhapsody", id: 1, status: "waiting" },
+        { name: "Marcus T.", song: "Don't Stop Believin'", id: 2, status: "waiting" },
+        { name: "Priya K.", song: "Dancing Queen", id: 3, status: "waiting" },
+      ];
+    } catch { return []; }
+  });
   const [submitted, setSubmitted] = useState(false);
   const [sparkles, setSparkles] = useState([]);
   const [currentSuggestion, setCurrentSuggestion] = useState(0);
@@ -25,9 +31,24 @@ export default function KaraokePortal() {
   const [adminError, setAdminError] = useState("");
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [removeConfirm, setRemoveConfirm] = useState(null);
-  const [nowPlaying, setNowPlaying] = useState(null);
+  const [nowPlaying, setNowPlaying] = useState(() => {
+    try {
+      const saved = localStorage.getItem("karaokeNowPlaying");
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
   const [toast, setToast] = useState(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  // Save queue to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("karaokeQueue", JSON.stringify(queue));
+  }, [queue]);
+
+  // Save nowPlaying to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("karaokeNowPlaying", JSON.stringify(nowPlaying));
+  }, [nowPlaying]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -56,6 +77,7 @@ export default function KaraokePortal() {
   const handleSubmit = () => {
     if (!name.trim()) { setError("Please enter your name!"); return; }
     if (!song.trim()) { setError("Please enter a song!"); return; }
+    if (queue.length >= MAX_QUEUE) { setError("Queue is full! Please wait for a spot to open."); return; }
     setError("");
     setQueue(q => [...q, { name: name.trim(), song: song.trim(), id: Date.now(), status: "waiting" }]);
     createSparkles();
@@ -101,6 +123,8 @@ export default function KaraokePortal() {
     setQueue([]);
     setNowPlaying(null);
     setShowClearConfirm(false);
+    localStorage.removeItem("karaokeQueue");
+    localStorage.removeItem("karaokeNowPlaying");
     showToast("Queue cleared for next event! 🎉");
   };
 
@@ -124,6 +148,7 @@ export default function KaraokePortal() {
 
   const waitingQueue = queue.filter(e => e.status === "waiting");
   const performingEntry = queue.find(e => e.status === "performing");
+  const spotsLeft = MAX_QUEUE - queue.length;
 
   return (
     <div style={{
@@ -192,6 +217,7 @@ export default function KaraokePortal() {
           transition: all 0.2s; width: 100%;
         }
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,0,255,0.4); }
+        .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         .icon-btn {
           background: none; border: none; cursor: pointer; padding: 6px 10px;
           border-radius: 4px; transition: all 0.15s; font-size: 14px;
@@ -293,7 +319,7 @@ export default function KaraokePortal() {
           </div>
         </div>
       )}
-it 
+
       {removeConfirm && (
         <div style={{
           position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)",
@@ -421,6 +447,25 @@ it
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+                {/* Spots indicator */}
+                <div style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  background: spotsLeft <= 3 ? "rgba(255,100,0,0.1)" : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${spotsLeft <= 3 ? "rgba(255,100,0,0.3)" : "rgba(255,255,255,0.08)"}`,
+                  borderRadius: 4, padding: "10px 14px",
+                }}>
+                  <span style={{ fontFamily: "'Crimson Text', serif", color: "rgba(255,255,255,0.6)", fontSize: 15 }}>
+                    Queue spots
+                  </span>
+                  <span style={{
+                    fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 15,
+                    color: spotsLeft <= 3 ? "#ff6600" : "#00ccff",
+                  }}>
+                    {spotsLeft} / {MAX_QUEUE} available
+                  </span>
+                </div>
+
                 {[
                   { label: "Your Name", val: name, set: setName, ph: "Stage name or real name..." },
                   { label: "Song Choice", val: song, set: setSong, ph: `e.g. ${SONG_SUGGESTIONS[currentSuggestion]}` },
@@ -433,7 +478,8 @@ it
                     }}>{label}</label>
                     <input className="neon-input" placeholder={ph} value={val}
                       onChange={e => { set(e.target.value); setError(""); }}
-                      onKeyDown={e => e.key === "Enter" && handleSubmit()} />
+                      onKeyDown={e => e.key === "Enter" && handleSubmit()}
+                      disabled={spotsLeft === 0} />
                   </div>
                 ))}
                 {error && (
@@ -441,7 +487,16 @@ it
                     ⚠ {error}
                   </div>
                 )}
-                <button className="submit-btn" onClick={handleSubmit}>Take the Stage →</button>
+                {spotsLeft === 0 && (
+                  <div style={{ textAlign: "center", padding: "10px", background: "rgba(255,60,60,0.1)", border: "1px solid rgba(255,60,60,0.3)", borderRadius: 4 }}>
+                    <span style={{ color: "#ff8888", fontFamily: "'Crimson Text', serif", fontStyle: "italic", fontSize: 16 }}>
+                      🚫 Queue is full! Please wait for a spot to open.
+                    </span>
+                  </div>
+                )}
+                <button className="submit-btn" onClick={handleSubmit} disabled={spotsLeft === 0}>
+                  Take the Stage →
+                </button>
               </div>
             )}
           </div>
