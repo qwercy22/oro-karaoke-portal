@@ -402,189 +402,189 @@ export default function KaraokePortal() {
                 </p>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column",, gap: 20 }}>
-            {[
-              { label: "Your Name", val: name, set: setName, ph: "Stage name or real name..." },
-              { label: "Song Choice", val: song, set: setSong, ph: `e.g. ${SONG_SUGGESTIONS[currentSuggestion]}` },
-            ].map(({ label, val, set, ph }) => (
-              <div key={label}>
-                <label style={{
-                  display: "block", fontFamily: "'Playfair Display', serif",
-                  color: "rgba(255,255,255,0.6)", fontSize: 11,
-                  letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 8,
-                }}>{label}</label>
-                <input className="neon-input" placeholder={ph} value={val}
-                  onChange={e => { set(e.target.value); setError(""); }}
-                  onKeyDown={e => e.key === "Enter" && handleSubmit()} />
-              </div>
-            ))}
-            {error && (
-              <div style={{ color: "#ff6666", fontFamily: "'Crimson Text', serif", fontStyle: "italic", fontSize: 15, textAlign: "center" }}>
-                ⚠ {error}
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                {[
+                  { label: "Your Name", val: name, set: setName, ph: "Stage name or real name..." },
+                  { label: "Song Choice", val: song, set: setSong, ph: `e.g. ${SONG_SUGGESTIONS[currentSuggestion]}` },
+                ].map(({ label, val, set, ph }) => (
+                  <div key={label}>
+                    <label style={{
+                      display: "block", fontFamily: "'Playfair Display', serif",
+                      color: "rgba(255,255,255,0.6)", fontSize: 11,
+                      letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 8,
+                    }}>{label}</label>
+                    <input className="neon-input" placeholder={ph} value={val}
+                      onChange={e => { set(e.target.value); setError(""); }}
+                      onKeyDown={e => e.key === "Enter" && handleSubmit()} />
+                  </div>
+                ))}
+                {error && (
+                  <div style={{ color: "#ff6666", fontFamily: "'Crimson Text', serif", fontStyle: "italic", fontSize: 15, textAlign: "center" }}>
+                    ⚠ {error}
+                  </div>
+                )}
+                <button className="submit-btn" onClick={handleSubmit}>Take the Stage →</button>
               </div>
             )}
-            <button className="submit-btn" onClick={handleSubmit}>Take the Stage →</button>
           </div>
         )}
-      </div>
-        )}
 
-      {/* ADMIN VIEW */}
-      {view === "admin" && (
-        <div style={{ display: "flex", flexDirection: "column",, gap: 16 }}>
+        {/* ADMIN VIEW */}
+        {view === "admin" && (
+          <div style={{ display: "flex", flexDirection: "column",, gap: 16 }}>
 
-      {/* Stats bar */}
-      <div style={{
-        display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10,
-      }}>
-        {[
-          { label: "In Queue", value: waitingQueue.length, color: "#ff00ff" },
-          { label: "On Stage", value: performingEntry ? 1 : 0, color: "#ffd700" },
-          { label: "Total Tonight", value: queue.length, color: "#00ccff" },
-        ].map(stat => (
-          <div key={stat.label} style={{
-            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 6, padding: "14px 16px", textAlign: "center",
-          }}>
-            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: stat.color }}>
-              {stat.value}
-            </div>
-            <div style={{ fontFamily: "'Crimson Text', serif", color: "rgba(255,255,255,0.4)", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-              {stat.label}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Now performing */}
-      {performingEntry && (
+        {/* Stats bar */}
         <div style={{
-          background: "rgba(255,200,0,0.08)", border: "1px solid rgba(255,200,0,0.35)",
-          borderRadius: 8, padding: "16px 20px",
-          animation: "now-playing-pulse 2s ease infinite",
-          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+          display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10,
         }}>
-          <div>
-            <div style={{ color: "#ffd700", fontFamily: "'Playfair Display', serif", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 4 }}>
-              🎤 Now Performing
-            </div>
-            <div style={{ color: "#fff", fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700 }}>
-              {performingEntry.name}
-            </div>
-            <div style={{ color: "rgba(255,200,0,0.7)", fontFamily: "'Crimson Text', serif", fontStyle: "italic", fontSize: 15 }}>
-              {performingEntry.song}
-            </div>
-          </div>
-          <button onClick={() => markDone(performingEntry.id)} style={{
-            background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,200,0,0.4)",
-            borderRadius: 4, color: "#ffd700", cursor: "pointer",
-            fontFamily: "'Playfair Display', serif", fontSize: 13,
-            letterSpacing: "0.08em", padding: "9px 16px", whiteSpace: "nowrap",
-            textTransform: "uppercase", transition: "all 0.2s",
-          }}>
-            ✓ Done
-          </button>
-        </div>
-      )}
-
-      {/* Queue */}
-      <div style={{
-        background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 8, overflow: "hidden",
-      }}>
-        <div style={{
-          padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <span style={{ fontFamily: "'Playfair Display', serif", color: "rgba(255,255,255,0.7)", fontSize: 14, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Waiting Queue
-          </span>
-          {waitingQueue.length === 0 && (
-            <span style={{ fontFamily: "'Crimson Text', serif", fontStyle: "italic", color: "rgba(255,255,255,0.3)", fontSize: 14 }}>
-              Empty — add performers via the sign-up portal
-            </span>
-          )}
-        </div>
-        <div style={{ padding: 12, maxHeight: 380, overflowY: "auto" }}>
-          {waitingQueue.map((entry, index) => (
-            <div key={entry.id} className="queue-row" style={{ animationDelay: `${index * 40}ms` }}>
-              {/* Position */}
-              <div style={{
-                width: 28, height: 28, borderRadius: "50%",
-                background: index === 0 ? "rgba(255,0,255,0.2)" : "rgba(255,255,255,0.05)",
-                border: `1px solid ${index === 0 ? "rgba(255,0,255,0.4)" : "rgba(255,255,255,0.1)"}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "'Playfair Display', serif",
-                color: index === 0 ? "#ff00ff" : "rgba(255,255,255,0.4)",
-                fontSize: 13, fontWeight: 700, flexShrink: 0,
-              }}>{index + 1}</div>
-
-              {/* Info */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ color: "#fff", fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {entry.name}
-                </div>
-                <div style={{ color: "rgba(255,0,255,0.6)", fontFamily: "'Crimson Text', serif", fontStyle: "italic", fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {entry.song}
-                </div>
+          {[
+            { label: "In Queue", value: waitingQueue.length, color: "#ff00ff" },
+            { label: "On Stage", value: performingEntry ? 1 : 0, color: "#ffd700" },
+            { label: "Total Tonight", value: queue.length, color: "#00ccff" },
+          ].map(stat => (
+            <div key={stat.label} style={{
+              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 6, padding: "14px 16px", textAlign: "center",
+            }}>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 700, color: stat.color }}>
+                {stat.value}
               </div>
-
-              {/* Actions */}
-              <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                <button className="icon-btn" title="Move up"
-                  onClick={() => moveUp(queue.findIndex(e => e.id === entry.id))}
-                  style={{ color: index === 0 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)", cursor: index === 0 ? "default" : "pointer" }}>
-                  ▲
-                </button>
-                <button className="icon-btn" title="Move down"
-                  onClick={() => moveDown(queue.findIndex(e => e.id === entry.id))}
-                  style={{ color: index === waitingQueue.length - 1 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)", cursor: index === waitingQueue.length - 1 ? "default" : "pointer" }}>
-                  ▼
-                </button>
-                <button className="icon-btn" title="Call to stage"
-                  onClick={() => callToStage(entry)}
-                  disabled={!!performingEntry}
-                  style={{
-                    color: performingEntry ? "rgba(255,255,255,0.15)" : "#ffd700",
-                    cursor: performingEntry ? "default" : "pointer",
-                    background: performingEntry ? "none" : "rgba(255,200,0,0.1)",
-                    border: performingEntry ? "1px solid transparent" : "1px solid rgba(255,200,0,0.2)",
-                    fontSize: 13, padding: "5px 10px",
-                  }}>
-                  🎤 Stage
-                </button>
-                <button className="icon-btn" title="Remove"
-                  onClick={() => setRemoveConfirm(entry)}
-                  style={{ color: "#ff6666", background: "rgba(255,60,60,0.08)", border: "1px solid rgba(255,60,60,0.2)", fontSize: 13, padding: "5px 10px" }}>
-                  ✕
-                </button>
+              <div style={{ fontFamily: "'Crimson Text', serif", color: "rgba(255,255,255,0.4)", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                {stat.label}
               </div>
             </div>
           ))}
         </div>
-      </div>
 
-      <button onClick={() => setView("portal")} style={{
-        background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4,
-        color: "rgba(255,255,255,0.4)", cursor: "pointer",
-        fontFamily: "'Playfair Display', serif", fontSize: 13,
-        letterSpacing: "0.1em", padding: "10px", textTransform: "uppercase",
-        transition: "all 0.2s",
-      }}>
-        ← Back to Sign-Up Portal
-      </button>
-    </div>
-  )
+        {/* Now performing */}
+        {performingEntry && (
+          <div style={{
+            background: "rgba(255,200,0,0.08)", border: "1px solid rgba(255,200,0,0.35)",
+            borderRadius: 8, padding: "16px 20px",
+            animation: "now-playing-pulse 2s ease infinite",
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+          }}>
+            <div>
+              <div style={{ color: "#ffd700", fontFamily: "'Playfair Display', serif", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 4 }}>
+                🎤 Now Performing
+              </div>
+              <div style={{ color: "#fff", fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700 }}>
+                {performingEntry.name}
+              </div>
+              <div style={{ color: "rgba(255,200,0,0.7)", fontFamily: "'Crimson Text', serif", fontStyle: "italic", fontSize: 15 }}>
+                {performingEntry.song}
+              </div>
+            </div>
+            <button onClick={() => markDone(performingEntry.id)} style={{
+              background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,200,0,0.4)",
+              borderRadius: 4, color: "#ffd700", cursor: "pointer",
+              fontFamily: "'Playfair Display', serif", fontSize: 13,
+              letterSpacing: "0.08em", padding: "9px 16px", whiteSpace: "nowrap",
+              textTransform: "uppercase", transition: "all 0.2s",
+            }}>
+              ✓ Done
+            </button>
+          </div>
+        )}
+
+        {/* Queue */}
+        <div style={{
+          background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
+          borderRadius: 8, overflow: "hidden",
+        }}>
+          <div style={{
+            padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", color: "rgba(255,255,255,0.7)", fontSize: 14, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              Waiting Queue
+            </span>
+            {waitingQueue.length === 0 && (
+              <span style={{ fontFamily: "'Crimson Text', serif", fontStyle: "italic", color: "rgba(255,255,255,0.3)", fontSize: 14 }}>
+                Empty — add performers via the sign-up portal
+              </span>
+            )}
+          </div>
+          <div style={{ padding: 12, maxHeight: 380, overflowY: "auto" }}>
+            {waitingQueue.map((entry, index) => (
+              <div key={entry.id} className="queue-row" style={{ animationDelay: `${index * 40}ms` }}>
+                {/* Position */}
+                <div style={{
+                  width: 28, height: 28, borderRadius: "50%",
+                  background: index === 0 ? "rgba(255,0,255,0.2)" : "rgba(255,255,255,0.05)",
+                  border: `1px solid ${index === 0 ? "rgba(255,0,255,0.4)" : "rgba(255,255,255,0.1)"}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "'Playfair Display', serif",
+                  color: index === 0 ? "#ff00ff" : "rgba(255,255,255,0.4)",
+                  fontSize: 13, fontWeight: 700, flexShrink: 0,
+                }}>{index + 1}</div>
+
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: "#fff", fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {entry.name}
+                  </div>
+                  <div style={{ color: "rgba(255,0,255,0.6)", fontFamily: "'Crimson Text', serif", fontStyle: "italic", fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {entry.song}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                  <button className="icon-btn" title="Move up"
+                    onClick={() => moveUp(queue.findIndex(e => e.id === entry.id))}
+                    style={{ color: index === 0 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)", cursor: index === 0 ? "default" : "pointer" }}>
+                    ▲
+                  </button>
+                  <button className="icon-btn" title="Move down"
+                    onClick={() => moveDown(queue.findIndex(e => e.id === entry.id))}
+                    style={{ color: index === waitingQueue.length - 1 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)", cursor: index === waitingQueue.length - 1 ? "default" : "pointer" }}>
+                    ▼
+                  </button>
+                  <button className="icon-btn" title="Call to stage"
+                    onClick={() => callToStage(entry)}
+                    disabled={!!performingEntry}
+                    style={{
+                      color: performingEntry ? "rgba(255,255,255,0.15)" : "#ffd700",
+                      cursor: performingEntry ? "default" : "pointer",
+                      background: performingEntry ? "none" : "rgba(255,200,0,0.1)",
+                      border: performingEntry ? "1px solid transparent" : "1px solid rgba(255,200,0,0.2)",
+                      fontSize: 13, padding: "5px 10px",
+                    }}>
+                    🎤 Stage
+                  </button>
+                  <button className="icon-btn" title="Remove"
+                    onClick={() => setRemoveConfirm(entry)}
+                    style={{ color: "#ff6666", background: "rgba(255,60,60,0.08)", border: "1px solid rgba(255,60,60,0.2)", fontSize: 13, padding: "5px 10px" }}>
+                    ✕
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button onClick={() => setView("portal")} style={{
+          background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4,
+          color: "rgba(255,255,255,0.4)", cursor: "pointer",
+          fontFamily: "'Playfair Display', serif", fontSize: 13,
+          letterSpacing: "0.1em", padding: "10px", textTransform: "uppercase",
+          transition: "all 0.2s",
+        }}>
+          ← Back to Sign-Up Portal
+        </button>
+      </div>
+      )
 }
 
-<div style={{
-  textAlign: "center", marginTop: 20,
-  fontFamily: "'Crimson Text', serif", fontStyle: "italic",
-  color: "rgba(255,255,255,0.2)", fontSize: 13,
-}}>
-  Every voice deserves a spotlight ✦
-</div>
-      </div >
+      <div style={{
+        textAlign: "center", marginTop: 20,
+        fontFamily: "'Crimson Text', serif", fontStyle: "italic",
+        color: "rgba(255,255,255,0.2)", fontSize: 13,
+      }}>
+        Every voice deserves a spotlight ✦
+      </div>
+    </div >
     </div >
   );
 }
