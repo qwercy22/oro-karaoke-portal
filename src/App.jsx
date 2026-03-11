@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 
-
 const SONG_SUGGESTIONS = [
   "Bohemian Rhapsody", "Don't Stop Believin'", "Sweet Caroline",
   "Total Eclipse of the Heart", "I Will Survive", "Livin' on a Prayer",
   "Africa", "Mr. Brightside", "Wonderwall", "Dancing Queen"
 ];
 
-const ADMIN_PASSWORD = "oro1234";
+const ADMIN_PASSWORD = "dj1234";
 
 export default function KaraokePortal() {
-  const [view, setView] = useState("portal"); // portal | admin
+  const [view, setView] = useState("portal");
   const [name, setName] = useState("");
   const [song, setSong] = useState("");
   const [queue, setQueue] = useState([
@@ -28,6 +27,7 @@ export default function KaraokePortal() {
   const [removeConfirm, setRemoveConfirm] = useState(null);
   const [nowPlaying, setNowPlaying] = useState(null);
   const [toast, setToast] = useState(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -97,6 +97,13 @@ export default function KaraokePortal() {
     showToast("Performance complete! ⭐");
   };
 
+  const clearAll = () => {
+    setQueue([]);
+    setNowPlaying(null);
+    setShowClearConfirm(false);
+    showToast("Queue cleared for next event! 🎉");
+  };
+
   const moveUp = (index) => {
     if (index === 0) return;
     setQueue(q => {
@@ -118,10 +125,10 @@ export default function KaraokePortal() {
   const waitingQueue = queue.filter(e => e.status === "waiting");
   const performingEntry = queue.find(e => e.status === "performing");
 
-  const styles = {
-    page: {
+  return (
+    <div style={{
       minHeight: "100vh",
-      background: "url('/background.avif') center/cover no-repeat",
+      background: "linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/background.avif') center/cover no-repeat",
       fontFamily: "'Georgia', serif",
       display: "flex",
       flexDirection: "column",
@@ -130,11 +137,7 @@ export default function KaraokePortal() {
       padding: "20px",
       position: "relative",
       overflow: "hidden",
-    },
-  };
-
-  return (
-    <div style={styles.page}>
+    }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Text:ital@0;1&display=swap');
         @keyframes flicker {
@@ -213,7 +216,6 @@ export default function KaraokePortal() {
         }
       `}</style>
 
-      {/* Ambient orbs */}
       {[
         { top: "-20%", left: "-10%", color: "rgba(136,0,255,0.15)" },
         { bottom: "-20%", right: "-10%", color: "rgba(255,0,136,0.12)" },
@@ -226,22 +228,11 @@ export default function KaraokePortal() {
         }} />
       ))}
 
-      {/* Dark overlay */}
-      <div style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.6)",
-        pointerEvents: "none",
-        zIndex: 1,
-      }} />
-
-      {/* Scanlines */}
       <div style={{
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 100,
         background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)"
       }} />
 
-      {/* Sparkles */}
       {sparkles.map(s => (
         <div key={s.id} style={{
           position: "fixed", left: `${s.x}%`, top: `${s.y}%`,
@@ -250,7 +241,6 @@ export default function KaraokePortal() {
         }}>✦</div>
       ))}
 
-      {/* Toast */}
       {toast && (
         <div style={{
           position: "fixed", bottom: 32, left: "50%",
@@ -265,7 +255,6 @@ export default function KaraokePortal() {
         }}>{toast.msg}</div>
       )}
 
-      {/* Admin Login Modal */}
       {showAdminLogin && (
         <div style={{
           position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)",
@@ -278,10 +267,10 @@ export default function KaraokePortal() {
             animation: "slide-up 0.3s ease",
           }} onClick={e => e.stopPropagation()}>
             <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#fff", margin: "0 0 6px", fontSize: 22 }}>
-              🔐 Admin Access
+              🔐 Host / Admin Access
             </h3>
             <p style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'Crimson Text', serif", fontStyle: "italic", margin: "0 0 20px", fontSize: 15 }}>
-              Enter the Host password to continue
+              Enter the password to continue
             </p>
             <input
               className="neon-input"
@@ -305,7 +294,6 @@ export default function KaraokePortal() {
         </div>
       )}
 
-      {/* Remove Confirm Modal */}
       {removeConfirm && (
         <div style={{
           position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)",
@@ -328,21 +316,53 @@ export default function KaraokePortal() {
               <button onClick={() => setRemoveConfirm(null)} style={{
                 flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
                 borderRadius: 4, color: "rgba(255,255,255,0.6)", cursor: "pointer",
-                fontFamily: "'Playfair Display', serif", fontSize: 14, padding: "11px", letterSpacing: "0.05em",
+                fontFamily: "'Playfair Display', serif", fontSize: 14, padding: "11px",
               }}>Cancel</button>
               <button onClick={() => removeEntry(removeConfirm.id)} style={{
                 flex: 1, background: "rgba(255,60,60,0.2)", border: "1px solid rgba(255,60,60,0.5)",
                 borderRadius: 4, color: "#ff8888", cursor: "pointer",
-                fontFamily: "'Playfair Display', serif", fontSize: 14, padding: "11px", letterSpacing: "0.05em",
+                fontFamily: "'Playfair Display', serif", fontSize: 14, padding: "11px",
               }}>Remove</button>
             </div>
           </div>
         </div>
       )}
 
-      <div style={{ width: "100%", maxWidth: view === "admin" ? 620 : 480, position: "relative", zIndex: 10 }}>
+      {showClearConfirm && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          zIndex: 400, backdropFilter: "blur(6px)",
+        }}>
+          <div style={{
+            background: "#120020", border: "1px solid rgba(255,80,80,0.4)",
+            borderRadius: 8, padding: 28, width: 300, textAlign: "center",
+            animation: "slide-up 0.2s ease",
+          }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>🧹</div>
+            <p style={{ color: "#fff", fontFamily: "'Playfair Display', serif", fontSize: 18, margin: "0 0 6px" }}>
+              Clear entire queue?
+            </p>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'Crimson Text', serif", fontStyle: "italic", fontSize: 15, margin: "0 0 20px" }}>
+              This will remove all performers. Use for a fresh event.
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowClearConfirm(false)} style={{
+                flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: 4, color: "rgba(255,255,255,0.6)", cursor: "pointer",
+                fontFamily: "'Playfair Display', serif", fontSize: 14, padding: "11px",
+              }}>Cancel</button>
+              <button onClick={clearAll} style={{
+                flex: 1, background: "rgba(255,60,60,0.2)", border: "1px solid rgba(255,60,60,0.5)",
+                borderRadius: 4, color: "#ff8888", cursor: "pointer",
+                fontFamily: "'Playfair Display', serif", fontSize: 14, padding: "11px",
+              }}>Clear All</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-        {/* Header */}
+      <div style={{ width: "100%", maxWidth: view === "admin" ? 620 : 480, position: "relative", zIndex: 10 }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 40, marginBottom: 6 }}>🎤</div>
           <h1 style={{
@@ -356,7 +376,7 @@ export default function KaraokePortal() {
             fontFamily: "'Crimson Text', serif", fontStyle: "italic",
             color: "rgba(255,255,255,0.4)", fontSize: 15,
             letterSpacing: "0.4em", textTransform: "uppercase", marginTop: 4,
-          }}>{view === "admin" ? "Host/Admin" : "Sign-Up Portal"}</div>
+          }}>{view === "admin" ? "Host / Admin Console" : "Sign-Up Portal"}</div>
           <div style={{
             width: 60, height: 1,
             background: "linear-gradient(90deg, transparent, #ff00ff, transparent)",
@@ -364,7 +384,6 @@ export default function KaraokePortal() {
           }} />
         </div>
 
-        {/* Tab switcher */}
         <div style={{
           display: "flex", background: "rgba(255,255,255,0.03)",
           border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6,
@@ -379,12 +398,11 @@ export default function KaraokePortal() {
                 background: view === v ? "rgba(255,0,255,0.2)" : "none",
                 border: view === v ? "1px solid rgba(255,0,255,0.3)" : "1px solid transparent",
               }}>
-              {v === "portal" ? "🎙 Sign Up" : "🎛 Host"}
+              {v === "portal" ? "🎙 Sign Up" : "🎛 Host / Admin"}
             </button>
           ))}
         </div>
 
-        {/* PORTAL VIEW */}
         {view === "portal" && (
           <div style={{
             background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
@@ -429,14 +447,9 @@ export default function KaraokePortal() {
           </div>
         )}
 
-        {/* ADMIN VIEW */}
         {view === "admin" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-            {/* Stats bar */}
-            <div style={{
-              display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10,
-            }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
               {[
                 { label: "In Queue", value: waitingQueue.length, color: "#ff00ff" },
                 { label: "On Stage", value: performingEntry ? 1 : 0, color: "#ffd700" },
@@ -456,7 +469,6 @@ export default function KaraokePortal() {
               ))}
             </div>
 
-            {/* Now performing */}
             {performingEntry && (
               <div style={{
                 background: "rgba(255,200,0,0.08)", border: "1px solid rgba(255,200,0,0.35)",
@@ -475,19 +487,19 @@ export default function KaraokePortal() {
                     {performingEntry.song}
                   </div>
                 </div>
-                <button onClick={() => markDone(performingEntry.id)} style={{
-                  background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,200,0,0.4)",
-                  borderRadius: 4, color: "#ffd700", cursor: "pointer",
-                  fontFamily: "'Playfair Display', serif", fontSize: 13,
-                  letterSpacing: "0.08em", padding: "9px 16px", whiteSpace: "nowrap",
-                  textTransform: "uppercase", transition: "all 0.2s",
-                }}>
-                  ✓ Done
-                </button>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    onChange={() => markDone(performingEntry.id)}
+                    style={{ width: 20, height: 20, cursor: "pointer", accentColor: "#ffd700" }}
+                  />
+                  <span style={{ color: "#ffd700", fontFamily: "'Playfair Display', serif", fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    Mark Done
+                  </span>
+                </label>
               </div>
             )}
 
-            {/* Queue */}
             <div style={{
               background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
               borderRadius: 8, overflow: "hidden",
@@ -508,7 +520,6 @@ export default function KaraokePortal() {
               <div style={{ padding: 12, maxHeight: 380, overflowY: "auto" }}>
                 {waitingQueue.map((entry, index) => (
                   <div key={entry.id} className="queue-row" style={{ animationDelay: `${index * 40}ms` }}>
-                    {/* Position */}
                     <div style={{
                       width: 28, height: 28, borderRadius: "50%",
                       background: index === 0 ? "rgba(255,0,255,0.2)" : "rgba(255,255,255,0.05)",
@@ -518,8 +529,6 @@ export default function KaraokePortal() {
                       color: index === 0 ? "#ff00ff" : "rgba(255,255,255,0.4)",
                       fontSize: 13, fontWeight: 700, flexShrink: 0,
                     }}>{index + 1}</div>
-
-                    {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ color: "#fff", fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {entry.name}
@@ -528,54 +537,47 @@ export default function KaraokePortal() {
                         {entry.song}
                       </div>
                     </div>
-
-                    {/* Actions */}
                     <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                      <button className="icon-btn" title="Move up"
-                        onClick={() => moveUp(queue.findIndex(e => e.id === entry.id))}
-                        style={{ color: index === 0 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)", cursor: index === 0 ? "default" : "pointer" }}>
-                        ▲
-                      </button>
-                      <button className="icon-btn" title="Move down"
-                        onClick={() => moveDown(queue.findIndex(e => e.id === entry.id))}
-                        style={{ color: index === waitingQueue.length - 1 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)", cursor: index === waitingQueue.length - 1 ? "default" : "pointer" }}>
-                        ▼
-                      </button>
-                      <button className="icon-btn" title="Call to stage"
-                        onClick={() => callToStage(entry)}
+                      <button className="icon-btn" onClick={() => moveUp(queue.findIndex(e => e.id === entry.id))}
+                        style={{ color: index === 0 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)" }}>▲</button>
+                      <button className="icon-btn" onClick={() => moveDown(queue.findIndex(e => e.id === entry.id))}
+                        style={{ color: index === waitingQueue.length - 1 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.5)" }}>▼</button>
+                      <button className="icon-btn" onClick={() => callToStage(entry)}
                         disabled={!!performingEntry}
                         style={{
                           color: performingEntry ? "rgba(255,255,255,0.15)" : "#ffd700",
-                          cursor: performingEntry ? "default" : "pointer",
                           background: performingEntry ? "none" : "rgba(255,200,0,0.1)",
                           border: performingEntry ? "1px solid transparent" : "1px solid rgba(255,200,0,0.2)",
                           fontSize: 13, padding: "5px 10px",
-                        }}>
-                        🎤 Stage
-                      </button>
-                      <button className="icon-btn" title="Remove"
-                        onClick={() => setRemoveConfirm(entry)}
-                        style={{ color: "#ff6666", background: "rgba(255,60,60,0.08)", border: "1px solid rgba(255,60,60,0.2)", fontSize: 13, padding: "5px 10px" }}>
-                        ✕
-                      </button>
+                        }}>🎤 Stage</button>
+                      <button className="icon-btn" onClick={() => setRemoveConfirm(entry)}
+                        style={{ color: "#ff6666", background: "rgba(255,60,60,0.08)", border: "1px solid rgba(255,60,60,0.2)", fontSize: 13, padding: "5px 10px" }}>✕</button>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
+            <button onClick={() => setShowClearConfirm(true)} style={{
+              background: "rgba(255,60,60,0.1)", border: "1px solid rgba(255,60,60,0.3)",
+              borderRadius: 4, color: "#ff8888", cursor: "pointer",
+              fontFamily: "'Playfair Display', serif", fontSize: 13,
+              letterSpacing: "0.1em", padding: "12px", textTransform: "uppercase",
+              width: "100%", transition: "all 0.2s",
+            }}>
+              🧹 Clear All — Start Fresh Event
+            </button>
+
             <button onClick={() => setView("portal")} style={{
               background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4,
               color: "rgba(255,255,255,0.4)", cursor: "pointer",
               fontFamily: "'Playfair Display', serif", fontSize: 13,
               letterSpacing: "0.1em", padding: "10px", textTransform: "uppercase",
-              transition: "all 0.2s",
             }}>
               ← Back to Sign-Up Portal
             </button>
           </div>
-        )
-        }
+        )}
 
         <div style={{
           textAlign: "center", marginTop: 20,
@@ -584,7 +586,7 @@ export default function KaraokePortal() {
         }}>
           Every voice deserves a spotlight ✦
         </div>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }
