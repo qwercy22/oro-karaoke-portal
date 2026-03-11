@@ -356,7 +356,7 @@ export default function KaraokePortal() {
             fontFamily: "'Crimson Text', serif", fontStyle: "italic",
             color: "rgba(255,255,255,0.4)", fontSize: 15,
             letterSpacing: "0.4em", textTransform: "uppercase", marginTop: 4,
-          }}>{view === "admin" ? "DJ Console" : "Sign-Up Portal"}</div>
+          }}>{view === "admin" ? "Host/Admin" : "Sign-Up Portal"}</div>
           <div style={{
             width: 60, height: 1,
             background: "linear-gradient(90deg, transparent, #ff00ff, transparent)",
