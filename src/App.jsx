@@ -281,7 +281,7 @@ export default function KaraokePortal() {
               🔐 Admin Access
             </h3>
             <p style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'Crimson Text', serif", fontStyle: "italic", margin: "0 0 20px", fontSize: 15 }}>
-              Enter the DJ password to continue
+              Enter the Host password to continue
             </p>
             <input
               className="neon-input"
