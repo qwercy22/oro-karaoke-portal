@@ -7,7 +7,7 @@ const SONG_SUGGESTIONS = [
 ];
 
 const ADMIN_PASSWORD = "oro1234";
-const MAX_QUEUE = 10;
+const MAX_QUEUE = 15;
 
 export default function KaraokePortal() {
   const [view, setView] = useState("portal");
@@ -16,11 +16,7 @@ export default function KaraokePortal() {
   const [queue, setQueue] = useState(() => {
     try {
       const saved = localStorage.getItem("karaokeQueue");
-      return saved ? JSON.parse(saved) : [
-        { name: "Jamie Lee", song: "Bohemian Rhapsody", id: 1, status: "waiting" },
-        { name: "Marcus T.", song: "Don't Stop Believin'", id: 2, status: "waiting" },
-        { name: "Priya K.", song: "Dancing Queen", id: 3, status: "waiting" },
-      ];
+      return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
   const [submitted, setSubmitted] = useState(false);
