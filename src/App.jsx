@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { db } from "./firebase";
+import { ref, onValue, set } from "firebase/database";
 
 const SONG_SUGGESTIONS = [
   "Bohemian Rhapsody", "Don't Stop Believin'", "Sweet Caroline",
@@ -41,6 +43,7 @@ export default function KaraokePortal() {
     localStorage.setItem("karaokeQueue", JSON.stringify(queue));
   }, [queue]);
 
+
   // Save nowPlaying to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("karaokeNowPlaying", JSON.stringify(nowPlaying));
@@ -51,6 +54,20 @@ export default function KaraokePortal() {
       setCurrentSuggestion(i => (i + 1) % SONG_SUGGESTIONS.length);
     }, 2000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const queueRef = ref(db, "queue");
+    const unsubscribe = onValue(queueRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const queueArray = Object.values(data);
+        setQueue(queueArray);
+      } else {
+        setQueue([]);
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   const showToast = (msg, type = "success") => {
@@ -75,8 +92,9 @@ export default function KaraokePortal() {
     if (!song.trim()) { setError("Please enter a song!"); return; }
     if (queue.length >= MAX_QUEUE) { setError("Queue is full! Please wait for a spot to open."); return; }
     setError("");
-    setQueue(q => [...q, { name: name.trim(), song: song.trim(), id: Date.now(), status: "waiting" }]);
-    createSparkles();
+    const newEntry = { name: name.trim(), song: song.trim(), id: Date.now(), status: "waiting" };
+    const newQueue = [...queue, newEntry];
+    set(ref(db, "queue"), Object.fromEntries(newQueue.map(e => [e.id, e]))); createSparkles();
     setSubmitted(true);
     setTimeout(() => { setSubmitted(false); setName(""); setSong(""); }, 3000);
   };
@@ -93,14 +111,17 @@ export default function KaraokePortal() {
   };
 
   const removeEntry = (id) => {
-    setQueue(q => q.filter(e => e.id !== id));
+    const newQueue = queue.filter(e => e.id !== id);
+    set(ref(db, "queue"), newQueue.length ? Object.fromEntries(newQueue.map(e => [e.id, e])) : null);
     if (nowPlaying?.id === id) setNowPlaying(null);
     setRemoveConfirm(null);
     showToast("Performer removed from queue.");
   };
 
   const setStatus = (id, status) => {
-    setQueue(q => q.map(e => e.id === id ? { ...e, status } : e));
+
+    const newQueue = queue.map(e => e.id === id ? { ...e, status } : e);
+    set(ref(db, "queue"), Object.fromEntries(newQueue.map(e => [e.id, e])));
   };
 
   const callToStage = (entry) => {
@@ -110,7 +131,8 @@ export default function KaraokePortal() {
   };
 
   const markDone = (id) => {
-    setQueue(q => q.filter(e => e.id !== id));
+    const newQueue = queue.filter(e => e.id !== id);
+    set(ref(db, "queue"), newQueue.length ? Object.fromEntries(newQueue.map(e => [e.id, e])) : null);
     if (nowPlaying?.id === id) setNowPlaying(null);
     showToast("Performance complete! ⭐");
   };
@@ -126,20 +148,16 @@ export default function KaraokePortal() {
 
   const moveUp = (index) => {
     if (index === 0) return;
-    setQueue(q => {
-      const arr = [...q];
-      [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
-      return arr;
-    });
+    const arr = [...queue];
+    [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+    set(ref(db, "queue"), Object.fromEntries(arr.map(e => [e.id, e])));
   };
 
   const moveDown = (index) => {
-    setQueue(q => {
-      if (index === q.length - 1) return q;
-      const arr = [...q];
-      [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
-      return arr;
-    });
+    if (index === queue.length - 1) return;
+    const arr = [...queue];
+    [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+    set(ref(db, "queue"), Object.fromEntries(arr.map(e => [e.id, e])));
   };
 
   const waitingQueue = queue.filter(e => e.status === "waiting");
