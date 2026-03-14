@@ -15,12 +15,8 @@ export default function KaraokePortal() {
   const [view, setView] = useState("portal");
   const [name, setName] = useState("");
   const [song, setSong] = useState("");
-  const [queue, setQueue] = useState(() => {
-    try {
-      const saved = localStorage.getItem("karaokeQueue");
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
-  });
+  const [queue, setQueue] = useState([]);
+
   const [submitted, setSubmitted] = useState(false);
   const [sparkles, setSparkles] = useState([]);
   const [currentSuggestion, setCurrentSuggestion] = useState(0);
@@ -138,11 +134,9 @@ export default function KaraokePortal() {
   };
 
   const clearAll = () => {
-    setQueue([]);
+    set(ref(db, "queue"), null);
     setNowPlaying(null);
     setShowClearConfirm(false);
-    localStorage.removeItem("karaokeQueue");
-    localStorage.removeItem("karaokeNowPlaying");
     showToast("Queue cleared for next event! 🎉");
   };
 
